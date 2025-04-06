@@ -10,6 +10,10 @@ jobs:
     # 작업 실행 환경 ubuntu로 변경
     runs-on: ubuntu-latest
 
+    # 환경 변수 지정
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
     steps:
     # 저장소 체크아웃
       - uses: actions/checkout@v4
