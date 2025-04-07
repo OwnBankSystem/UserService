@@ -3,7 +3,7 @@ package com.BankSystem.UserService.domain.entity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 class User(
     @Id
     @Column(name = "user_key")

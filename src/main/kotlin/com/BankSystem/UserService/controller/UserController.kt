@@ -1,9 +1,15 @@
 package com.BankSystem.UserService.controller
 
+import com.BankSystem.UserService.domain.entity.User
+import com.BankSystem.UserService.dto.JoinRequest
 import com.BankSystem.UserService.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -11,7 +17,12 @@ import org.springframework.web.bind.annotation.RestController
 class UserController(@Autowired val userService: UserService) {
 
     @GetMapping
-    fun Test(): String {
-        return "Hello, World"
+    fun getUser(@RequestParam username: String): User {
+        return userService.getUsername(username)
+    }
+
+    @PostMapping("/join")
+    fun join(@RequestBody @Validated joinRequest: JoinRequest) {
+        userService.join(joinRequest)
     }
 }

@@ -36,6 +36,8 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	testImplementation("com.h2database:h2")
+	testImplementation("io.mockk:mockk:1.13.17")
+	testImplementation("io.kotest:kotest-assertions-core:5.8.0")
 }
 
 kotlin {
