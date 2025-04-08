@@ -4,11 +4,13 @@ import com.BankSystem.UserService.domain.entity.User
 import com.BankSystem.UserService.domain.repository.UserRepository
 import com.BankSystem.UserService.dto.JoinRequest
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class UserServiceImpl(
-    @Autowired private val userRepository: UserRepository
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val passwordEncoder: PasswordEncoder
 ) : UserService {
 
     override fun getUsername(username: String): User {
@@ -16,6 +18,12 @@ class UserServiceImpl(
     }
 
     override fun join(joinRequest: JoinRequest) {
-        userRepository.save(User(username = joinRequest.username))
+        val encodePassword = passwordEncoder.encode(joinRequest.accountPassword)
+        userRepository.save(User(
+            accountId = joinRequest.accountId,
+            accountPassword = encodePassword,
+            username = joinRequest.username,
+            phoneNumber = joinRequest.phoneNumber
+        ))
     }
 }

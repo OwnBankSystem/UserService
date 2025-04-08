@@ -1,5 +1,8 @@
 package com.BankSystem.UserService.dto
 
 class JoinRequest(
-    var username: String
+    val accountId: String,
+    val accountPassword: String,
+    val username: String,
+    val phoneNumber: String
 )
