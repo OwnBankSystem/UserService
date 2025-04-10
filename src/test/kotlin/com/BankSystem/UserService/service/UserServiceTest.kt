@@ -44,6 +44,7 @@ class UserServiceTest{
         val userSlot = slot<User>()
 
         //시나리오 설정
+        every { userRepository.findByPhoneNumber(phone) } returns null
         every { userRepository.save(capture(userSlot)) } returns mockk()
 
         //when
