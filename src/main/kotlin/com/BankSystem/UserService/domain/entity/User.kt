@@ -22,4 +22,7 @@ class User(
 
     @Column(name = "phone_number", nullable = false, unique = true)
     val phoneNumber: String
-)
+) {
+    //JPA에서 기본 생성자가 없어서 생기는 문제 해결을 위한 코드
+    protected constructor() : this(0, "", "", "", "")
+}

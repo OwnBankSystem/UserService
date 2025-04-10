@@ -45,6 +45,25 @@ class UserControllerTest {
         }
     }
 
+    @Test
+    fun `POST 유저 중복 가입 테스트`() {
+        `POST join - 유저 등록 성공`()
+        val request = JoinRequest(
+            accountId = "hanif",
+            accountPassword = "1234",
+            username = "hanif",
+            phoneNumber = "010-1234-5678"
+        )
+        val json = objectMapper.writeValueAsString(request)
+
+        mockMvc.post("/user/join") {
+            contentType = MediaType.APPLICATION_JSON
+            content = json
+        }.andExpect {
+            status { isBadRequest() }
+        }
+    }
+
 //    @Test
 //    fun `GET user - 유저 조회 성공`() {
 //        // given
