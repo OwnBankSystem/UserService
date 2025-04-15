@@ -16,6 +16,13 @@ class ApiExceptionHandler {
         return generateErrorResponse(HttpStatus.BAD_REQUEST, e.message!!)
     }
 
+    @ExceptionHandler(
+        UserNotFoundException::class
+    )
+    fun userNotFoundException(e: Exception): ResponseEntity<ErrorResponse> {
+        return generateErrorResponse(HttpStatus.NOT_FOUND, e.message!!)
+    }
+
     private fun generateErrorResponse(
         status: HttpStatus,
         message: String

@@ -25,6 +25,7 @@ class SecurityConfig {
             .authorizeHttpRequests { //authorization 규칙 정의
                 it
                     .requestMatchers("/user/join").permitAll()  // 회원가입은 인증 없이 접근 허용
+                    .requestMatchers("/user/login").permitAll()
                     .anyRequest().authenticated()                         // 나머지는 인증 필요
             }
         return http.build()

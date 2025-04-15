@@ -3,7 +3,11 @@ package com.BankSystem.UserService.service
 import com.BankSystem.UserService.domain.entity.User
 import com.BankSystem.UserService.domain.repository.UserRepository
 import com.BankSystem.UserService.dto.JoinRequest
+import com.BankSystem.UserService.dto.LoginRequest
+import com.BankSystem.UserService.dto.LoginResponse
 import com.BankSystem.UserService.exception.UserAlreadyExistException
+import com.BankSystem.UserService.exception.UserNotFoundException
+import com.BankSystem.UserService.util.JwtTokenProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -11,7 +15,8 @@ import org.springframework.stereotype.Service
 @Service
 class UserServiceImpl(
     @Autowired private val userRepository: UserRepository,
-    @Autowired private val passwordEncoder: PasswordEncoder
+    @Autowired private val passwordEncoder: PasswordEncoder,
+    @Autowired private val jwtTokenProvider: JwtTokenProvider
 ) : UserService {
 
     override fun getUsername(username: String): User {
@@ -33,5 +38,19 @@ class UserServiceImpl(
             username = joinRequest.username,
             phoneNumber = joinRequest.phoneNumber
         ))
+    }
+
+    override fun login(loginRequest: LoginRequest): LoginResponse {
+        var user = userRepository.findByAccountId(loginRequest.accountId)?: throw UserNotFoundException("User Not Found")
+        if(!passwordEncoder.matches(loginRequest.accountPassword, user.accountPassword)) throw UserNotFoundException("Password Not Match")
+
+        return tokenResponse(loginRequest.accountId)
+    }
+
+    private fun tokenResponse(accountId: String): LoginResponse {
+        val accessToken = jwtTokenProvider.createAccessToken(accountId)
+        val refreshToken = jwtTokenProvider.createRefreshToken(accessToken)
+
+        return LoginResponse(accessToken, refreshToken)
     }
 }

@@ -2,6 +2,8 @@ package com.BankSystem.UserService.controller
 
 import com.BankSystem.UserService.domain.entity.User
 import com.BankSystem.UserService.dto.JoinRequest
+import com.BankSystem.UserService.dto.LoginRequest
+import com.BankSystem.UserService.dto.LoginResponse
 import com.BankSystem.UserService.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.validation.annotation.Validated
@@ -19,6 +21,11 @@ class UserController(@Autowired val userService: UserService) {
     @GetMapping
     fun getUser(@RequestParam username: String): User {
         return userService.getUsername(username)
+    }
+
+    @GetMapping("/login")
+    fun login(@RequestBody @Validated loginRequest: LoginRequest): LoginResponse {
+        return userService.login(loginRequest)
     }
 
     @PostMapping("/join")
