@@ -7,7 +7,7 @@ import com.BankSystem.UserService.dto.LoginResponse
 
 interface UserService {
 
-    fun getUsername(username: String): User
+    fun getUsername(): User
 
     fun join(joinRequest: JoinRequest)
 

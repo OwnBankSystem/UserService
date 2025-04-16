@@ -1,17 +1,24 @@
 package com.BankSystem.UserService.config
 
+import com.BankSystem.UserService.security.JwtTokenFilter
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
-class SecurityConfig {
+@EnableWebSecurity
+class SecurityConfig(
+    private val jwtTokenFilter: JwtTokenFilter
+) {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
@@ -28,6 +35,7 @@ class SecurityConfig {
                     .requestMatchers("/user/login").permitAll()
                     .anyRequest().authenticated()                         // 나머지는 인증 필요
             }
+            .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 

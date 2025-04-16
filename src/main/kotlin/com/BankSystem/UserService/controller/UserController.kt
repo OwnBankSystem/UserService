@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/user")
 class UserController(@Autowired val userService: UserService) {
 
-    @GetMapping
-    fun getUser(@RequestParam username: String): User {
-        return userService.getUsername(username)
+    @GetMapping("/getUser")
+    fun getUser(): User {
+        return userService.getUsername()
     }
 
     @GetMapping("/login")

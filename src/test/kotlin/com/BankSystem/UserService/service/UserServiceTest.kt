@@ -6,7 +6,9 @@ import com.BankSystem.UserService.dto.JoinRequest
 import com.BankSystem.UserService.dto.LoginRequest
 import com.BankSystem.UserService.exception.UserAlreadyExistException
 import com.BankSystem.UserService.exception.UserNotFoundException
-import com.BankSystem.UserService.util.JwtTokenProvider
+import com.BankSystem.UserService.security.AuthDetailsService
+import com.BankSystem.UserService.security.AuthenticationFacade
+import com.BankSystem.UserService.security.JwtTokenProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -29,6 +31,12 @@ class UserServiceTest{
     @MockK
     lateinit var userRepository: UserRepository
 
+    @MockK
+    lateinit var authenticationFacade: AuthenticationFacade
+
+    @MockK
+    lateinit var authDetailsService: AuthDetailsService
+
     lateinit var userService: UserService
     private val passwordEncoder = BCryptPasswordEncoder()
 
@@ -39,10 +47,11 @@ class UserServiceTest{
             accessTokenExpiration = 3600L,
             refreshTokenExpiration = 604800L,
             header = "Authorization",
-            prefix = "Bearer "
+            prefix = "Bearer ",
+            authDetailsService
         )
 
-        userService = UserServiceImpl(userRepository, passwordEncoder, jwtTokenProvider)
+        userService = UserServiceImpl(userRepository, passwordEncoder, jwtTokenProvider, authenticationFacade)
     }
 
     @Test

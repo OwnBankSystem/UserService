@@ -7,7 +7,8 @@ import com.BankSystem.UserService.dto.LoginRequest
 import com.BankSystem.UserService.dto.LoginResponse
 import com.BankSystem.UserService.exception.UserAlreadyExistException
 import com.BankSystem.UserService.exception.UserNotFoundException
-import com.BankSystem.UserService.util.JwtTokenProvider
+import com.BankSystem.UserService.security.AuthenticationFacade
+import com.BankSystem.UserService.security.JwtTokenProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -16,11 +17,13 @@ import org.springframework.stereotype.Service
 class UserServiceImpl(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val passwordEncoder: PasswordEncoder,
-    @Autowired private val jwtTokenProvider: JwtTokenProvider
+    @Autowired private val jwtTokenProvider: JwtTokenProvider,
+    @Autowired private val authenticationFacade: AuthenticationFacade
 ) : UserService {
 
-    override fun getUsername(username: String): User {
-        return userRepository.findByUsername(username)
+    override fun getUsername(): User {
+        return userRepository.findByAccountId(authenticationFacade.getAccountId())
+            ?: throw UserNotFoundException("User Not Found")
     }
 
     override fun join(joinRequest: JoinRequest) {
