@@ -52,7 +52,7 @@ class UserServiceImpl(
 
     private fun tokenResponse(accountId: String): LoginResponse {
         val accessToken = jwtTokenProvider.createAccessToken(accountId)
-        val refreshToken = jwtTokenProvider.createRefreshToken(accessToken)
+        val refreshToken = jwtTokenProvider.createRefreshToken(accountId)
 
         return LoginResponse(accessToken, refreshToken)
     }
