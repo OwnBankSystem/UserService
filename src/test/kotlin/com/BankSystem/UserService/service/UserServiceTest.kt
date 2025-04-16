@@ -3,6 +3,7 @@ package com.BankSystem.UserService.service
 import com.BankSystem.UserService.domain.entity.User
 import com.BankSystem.UserService.domain.repository.UserRepository
 import com.BankSystem.UserService.dto.JoinRequest
+import com.BankSystem.UserService.util.JwtTokenProvider
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -12,13 +13,11 @@ import io.mockk.slot
 import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.test.context.TestPropertySource
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
-import kotlin.test.asserter
 
 @ExtendWith(MockKExtension::class)
 class UserServiceTest{
@@ -31,7 +30,15 @@ class UserServiceTest{
 
     @BeforeEach
     fun setUp() {
-        userService = UserServiceImpl(userRepository, passwordEncoder)
+        val jwtTokenProvider = JwtTokenProvider(
+            secretKey = "12345678901234567890123456789012",
+            accessTokenExpiration = 3600L,
+            refreshTokenExpiration = 604800L,
+            header = "Authorization",
+            prefix = "Bearer "
+        )
+
+        userService = UserServiceImpl(userRepository, passwordEncoder, jwtTokenProvider)
     }
 
     @Test
