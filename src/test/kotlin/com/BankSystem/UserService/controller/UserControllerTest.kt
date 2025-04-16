@@ -1,6 +1,7 @@
 package com.BankSystem.UserService.controller
 
 import com.BankSystem.UserService.dto.JoinRequest
+import com.BankSystem.UserService.dto.LoginRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -61,6 +62,27 @@ class UserControllerTest {
             content = json
         }.andExpect {
             status { isBadRequest() }
+        }
+    }
+
+    @Test
+    fun `GET user - login 성공`() {
+        `POST join - 유저 등록 성공`()
+        val request = LoginRequest(
+            accountId = "hanif",
+            accountPassword = "1234"
+        )
+        val json = objectMapper.writeValueAsString(request)
+
+        // when + then
+        mockMvc.get("/user/login") {
+            contentType = MediaType.APPLICATION_JSON
+            content = json
+        }.andExpect {
+            status { isOk() }
+            //Kotlin의 DSL 문법 - ResponseBody 데이터 파싱
+            jsonPath("$.accessToken") { exists() }
+            jsonPath("$.refreshToken") { exists() }
         }
     }
 

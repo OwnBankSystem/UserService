@@ -3,8 +3,13 @@ package com.BankSystem.UserService.service
 import com.BankSystem.UserService.domain.entity.User
 import com.BankSystem.UserService.domain.repository.UserRepository
 import com.BankSystem.UserService.dto.JoinRequest
+import com.BankSystem.UserService.dto.LoginRequest
+import com.BankSystem.UserService.exception.UserAlreadyExistException
+import com.BankSystem.UserService.exception.UserNotFoundException
 import com.BankSystem.UserService.util.JwtTokenProvider
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
@@ -14,7 +19,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.test.context.TestPropertySource
 import kotlin.test.Test
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
@@ -71,20 +75,91 @@ class UserServiceTest{
         assertTrue(passwordEncoder.matches(password, userSlot.captured.accountPassword))
     }
 
-//    @Test
-//    fun getUserTest() {
-//        val name = "hanif"
-//        val user = User(accountId = name, accountPassword = "1234", username = name, phoneNumber = "010-1234-5678")
-//
-//        //시나리오 설정
-//        every { userRepository.findByUsername(name) } returns user
-//
-//        //when
-//        val result = userService.getUsername(name)
-//
-//        //then
-//        result.accountId shouldBe 1
-//        result.username shouldBe name
-//        verify(exactly = 1) { userRepository.findByUsername(name) }
-//    }
+    @Test
+    fun `회원가입 실패 - 이미 있는 전화번호`() {
+        joinTest()
+        val name = "hanif"
+        val encodedPassword = passwordEncoder.encode("1234")
+        val user = User(id = 1, accountId = name, accountPassword = encodedPassword, username = name, phoneNumber = "010-1234-5678")
+        val request = JoinRequest(
+            accountId = "hanif2",
+            accountPassword = "1234",
+            username = "hanif2",
+            phoneNumber = "010-1234-5678")
+
+        //시나리오 설정
+        every { userRepository.findByPhoneNumber(user.phoneNumber) } returns user
+
+        //when + then
+        shouldThrow<UserAlreadyExistException> {
+            userService.join(request)
+        }.message shouldBe "PhoneNumber Already Joined"
+    }
+
+    @Test
+    fun `회원가입 실패 - 이미 가입된 유저`() {
+        joinTest()
+        val name = "hanif"
+        val encodedPassword = passwordEncoder.encode("1234")
+        val user = User(id = 1, accountId = name, accountPassword = encodedPassword, username = name, phoneNumber = "010-1234-5678")
+        val request = JoinRequest(
+            accountId = name,
+            accountPassword = "1234",
+            username = name,
+            phoneNumber = "010-1234-5678")
+
+        //시나리오 설정
+        every { userRepository.findByPhoneNumber(user.phoneNumber) } returns user
+
+        //when + then
+        shouldThrow<UserAlreadyExistException> {
+            userService.join(request)
+        }.message shouldBe "${name} Already Joined"
+    }
+
+    @Test
+    fun loginTest() {
+        val request = LoginRequest("hanif", "1234")
+        val encodedPassword = passwordEncoder.encode("1234")
+        val user = User(id = 1, accountId = request.accountId, accountPassword = encodedPassword, username = request.accountId, phoneNumber = "010-1234-5678")
+
+        //시나리오 설정
+        every { userRepository.findByAccountId("hanif") } returns user
+
+        //when
+        val result = userService.login(request)
+
+        //then
+        result.accessToken shouldNotBe null
+        result.refreshToken shouldNotBe null
+        verify(exactly = 1) { userRepository.findByAccountId(request.accountId) }
+    }
+
+    @Test
+    fun `로그인 실패 - id가 없음`() {
+        val request = LoginRequest("hanif2", "1234")
+
+        //시나리오 설정
+        every { userRepository.findByAccountId("hanif2") } returns null
+
+        //when + then
+        shouldThrow<UserNotFoundException> {
+            userService.login(request)
+        }.message shouldBe "User Not Found"
+    }
+
+    @Test
+    fun `로그인 실패 - password가 다름`() {
+        val request = LoginRequest("hanif", "12345")
+        val encodedPassword = passwordEncoder.encode("1234")
+        val user = User(id = 1, accountId = request.accountId, accountPassword = encodedPassword, username = request.accountId, phoneNumber = "010-1234-5678")
+
+        //시나리오 설정
+        every { userRepository.findByAccountId("hanif") } returns user
+
+        //when + then
+        shouldThrow<UserNotFoundException> {
+            userService.login(request)
+        }.message shouldBe "Password Not Match"
+    }
 }
